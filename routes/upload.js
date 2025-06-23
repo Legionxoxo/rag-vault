@@ -12,12 +12,16 @@ router.post("/", upload.array("files", 10), async (req, res) => {
     try {
         const results = [];
 
+        const vaultname = req.body.vaultname;
+        console.log("body", req.body); // 👈 Get vaultname here
+        console.log("Vault Name:", vaultname);
+
         for (const file of req.files) {
             console.log("file data", file);
             const rawText = file.buffer.toString("utf-8");
             const chunks = chunkText(parseMarkdown(rawText));
             const embedded = await embedChunks(chunks);
-            await insertEmbeddings(embedded, file.originalname);
+            await insertEmbeddings(embedded, file.originalname, vaultname);
             results.push(file.originalname);
         }
 
