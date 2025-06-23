@@ -6,14 +6,15 @@ import { embedChunks } from "../lib/embedder.js";
 import { insertEmbeddings } from "../lib/db.js";
 
 const router = express.Router();
-const upload = multer({ storage: multer.memoryStorage() }); // ✅ in-memory storage
+const upload = multer({ storage: multer.memoryStorage() });
 
 router.post("/", upload.array("files", 10), async (req, res) => {
     try {
         const results = [];
 
         for (const file of req.files) {
-            const rawText = file.buffer.toString("utf-8"); // ✅ read from memory
+            console.log("file data", file);
+            const rawText = file.buffer.toString("utf-8");
             const chunks = chunkText(parseMarkdown(rawText));
             const embedded = await embedChunks(chunks);
             await insertEmbeddings(embedded, file.originalname);
@@ -21,8 +22,7 @@ router.post("/", upload.array("files", 10), async (req, res) => {
         }
 
         res.json({
-            message: "✅ Files uploaded and indexed (memory only)",
-            files: results,
+            message: "Files uploaded and indexed (memory only)",
         });
     } catch (err) {
         console.error(err);
